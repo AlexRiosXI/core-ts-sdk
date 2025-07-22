@@ -6,6 +6,7 @@
 // Exportaciones principales
 export { request } from './core/request';
 export { useApi, useApiWithParams, useApiWithDeps, useApiWithTransform, useApiWithValidation, useApiWithMutation } from './hooks/useApi';
+export { useRequest, useRequestWithRetry, useRequestOptimistic } from './hooks/useRequest';
 
 // Cliente API
 export { 

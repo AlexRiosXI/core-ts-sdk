@@ -146,40 +146,54 @@ const result = await request<Product[]>('/api/products', {
 
 ## 🎣 Hooks de React
 
-### Hook básico
+### Hook useRequest (Recomendado)
+
+El hook `useRequest` proporciona un manejo completo del estado de las peticiones:
 
 ```typescript
-import { useApi } from '@sierra-madre/core-ts-sdk';
+import { useRequest } from '@sierra-madre/core-ts-sdk';
 
 function UserProfile({ userId }: { userId: string }) {
-  const { data, error, isLoading, mutate } = useApi<User>(`/api/users/${userId}`);
+  const { data, error, isLoading, status, refetch, cancel } = useRequest<User>(
+    `/api/users/${userId}`,
+    {
+      config: { timeout: 5000 }
+    }
+  );
 
   if (isLoading) return <div>Cargando...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  if (error) return <div>Error: {error} (Status: {status})</div>;
   if (!data) return <div>No hay datos</div>;
 
   return (
     <div>
       <h1>{data.name}</h1>
       <p>{data.email}</p>
+      <button onClick={refetch}>Actualizar</button>
+      <button onClick={cancel}>Cancelar</button>
     </div>
   );
 }
 ```
 
+### Hook básico (useApi)
+
 ### Hook con parámetros
 
 ```typescript
-import { useApiWithParams } from '@sierra-madre/core-ts-sdk';
+import { useRequest } from '@sierra-madre/core-ts-sdk';
 
 function ProductList({ category }: { category: string }) {
-  const { data, error, isLoading } = useApiWithParams<Product[]>(
+  const { data, error, isLoading, status } = useRequest<Product[]>(
     '/api/products',
-    { category, limit: 20 }
+    {
+      params: { category, limit: 20 },
+      dependencies: [category], // Re-ejecuta cuando cambia la categoría
+    }
   );
 
   if (isLoading) return <div>Cargando productos...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  if (error) return <div>Error: {error} (Status: {status})</div>;
 
   return (
     <div>
@@ -191,21 +205,77 @@ function ProductList({ category }: { category: string }) {
 }
 ```
 
-### Hook con dependencias
+### Hook con retry automático
 
 ```typescript
-import { useApiWithDeps } from '@sierra-madre/core-ts-sdk';
+import { useRequestWithRetry } from '@sierra-madre/core-ts-sdk';
 
-function OrderDetails({ orderId, includeItems }: { orderId: string; includeItems: boolean }) {
-  const { data, error, isLoading } = useApiWithDeps<Order>(
-    '/api/orders',
-    [orderId, includeItems], // Re-ejecuta cuando cambian estas dependencias
-    { includeItems }
+function ReliableComponent({ userId }: { userId: string }) {
+  const { data, error, isLoading, status, retryAttempt, refetch } = useRequestWithRetry<User>(
+    `/api/users/${userId}`,
+    {
+      retryCount: 3,
+      retryDelay: 1000,
+      retryCondition: (err) => err.status >= 500, // Solo reintenta errores del servidor
+    }
   );
 
-  // ... resto del componente
+  if (isLoading) {
+    return (
+      <div>
+        <p>Cargando...</p>
+        {retryAttempt > 0 && <p>Intento {retryAttempt}</p>}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div>
+        <p>Error: {error}</p>
+        <p>Status: {status}</p>
+        <p>Intentos: {retryAttempt}</p>
+        <button onClick={refetch}>Reintentar manualmente</button>
+      </div>
+    );
+  }
+
+  return <div>{data?.name}</div>;
 }
 ```
+
+### Hook con actualizaciones optimistas
+
+```typescript
+import { useRequestOptimistic } from '@sierra-madre/core-ts-sdk';
+
+function OptimisticComponent({ userId }: { userId: string }) {
+  const { data, error, isLoading, setOptimistic } = useRequestOptimistic<User>(
+    `/api/users/${userId}`,
+    {
+      optimisticData: { id: userId, name: '', email: '', role: '' } as User,
+    }
+  );
+
+  const handleNameChange = (newName: string) => {
+    setOptimistic({ ...data!, name: newName });
+  };
+
+  return (
+    <div>
+      <h1>{data?.name}</h1>
+      <input
+        value={data?.name || ''}
+        onChange={(e) => handleNameChange(e.target.value)}
+        placeholder="Actualizar nombre..."
+      />
+      {isLoading && <p>Actualizando...</p>}
+    </div>
+  );
+}
+```
+
+### Hook con dependencias
 
 ### Hook con transformación
 

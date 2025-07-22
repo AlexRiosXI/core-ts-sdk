@@ -5,7 +5,6 @@
 import { 
   initializeSierraMadreSDK,
   request,
-  requestWithParams,
   useApi,
   setAuthToken,
   removeAuthToken
@@ -35,10 +34,9 @@ async function fetchUser(userId: string) {
 
 // 4. Ejemplo de petición con parámetros
 async function fetchProducts(category: string, limit: number = 10) {
-  const result = await requestWithParams<Product[]>(
-    '/api/products',
-    { category, limit }
-  );
+  const result = await request<Product[]>('/api/products', {
+    params: { category, limit }
+  });
   
   if (result.error) {
     console.error('Error al obtener productos:', result.error.message);

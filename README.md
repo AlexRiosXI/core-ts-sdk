@@ -50,6 +50,20 @@ apiClient.addMiddleware(createAuthMiddleware());
 
 ## 📡 Uso básico
 
+### Función request unificada
+
+La función `request` es la función principal del SDK y acepta parámetros opcionales para configurar peticiones GET:
+
+```typescript
+import { request } from '@sierra-madre/core-ts-sdk';
+
+// Sintaxis básica
+request<T>(url: string, options?: {
+  params?: Record<string, any>;    // Parámetros de consulta
+  config?: RequestConfig;          // Configuración adicional
+})
+```
+
 ### Peticiones GET simples
 
 ```typescript
@@ -65,32 +79,69 @@ if (result.error) {
 }
 ```
 
-### Peticiones con parámetros
+### Peticiones con parámetros de consulta
 
 ```typescript
-import { requestWithParams } from '@sierra-madre/core-ts-sdk';
+import { request } from '@sierra-madre/core-ts-sdk';
 
 // Petición con parámetros de consulta
-const result = await requestWithParams<Product[]>(
-  '/api/products',
-  { 
+const result = await request<Product[]>('/api/products', {
+  params: { 
     category: 'electronics',
     limit: 10,
     page: 1 
   }
-);
+});
 ```
 
 ### Peticiones con timeout
 
 ```typescript
-import { requestWithTimeout } from '@sierra-madre/core-ts-sdk';
+import { request } from '@sierra-madre/core-ts-sdk';
 
 // Petición con timeout personalizado
-const result = await requestWithTimeout<Order>(
-  '/api/orders/123',
-  5000 // 5 segundos
-);
+const result = await request<Order>('/api/orders/123', {
+  config: {
+    timeout: 5000 // 5 segundos
+  }
+});
+```
+
+### Peticiones con cancelación
+
+```typescript
+import { request } from '@sierra-madre/core-ts-sdk';
+
+// Petición con AbortController para cancelación
+const controller = new AbortController();
+const result = await request<User>('/api/users/1', {
+  config: {
+    signal: controller.signal
+  }
+});
+
+// Para cancelar la petición
+controller.abort();
+```
+
+### Peticiones con parámetros y configuración combinada
+
+```typescript
+import { request } from '@sierra-madre/core-ts-sdk';
+
+// Petición con parámetros y timeout
+const result = await request<Product[]>('/api/products', {
+  params: { 
+    category: 'electronics',
+    limit: 10 
+  },
+  config: {
+    timeout: 8000,
+    headers: {
+      'X-Custom-Header': 'value'
+    }
+  }
+});
 ```
 
 ## 🎣 Hooks de React
@@ -295,6 +346,32 @@ tests/
 - ❌ Sin validación runtime (Zod en futuras versiones)
 - ❌ Sin soporte SSR/Next.js
 - ❌ Sin backoff/retry automático
+
+## 🔄 Mejoras implementadas
+
+### Función request unificada
+
+**Antes (múltiples funciones):**
+```typescript
+// Diferentes funciones para diferentes casos
+const result1 = await request<User>('/api/users/1');
+const result2 = await requestWithParams<Product[]>('/api/products', { category: 'electronics' });
+const result3 = await requestWithTimeout<Order>('/api/orders/123', 5000);
+```
+
+**Ahora (una sola función configurable):**
+```typescript
+// Una sola función para todos los casos
+const result1 = await request<User>('/api/users/1');
+const result2 = await request<Product[]>('/api/products', { params: { category: 'electronics' } });
+const result3 = await request<Order>('/api/orders/123', { config: { timeout: 5000 } });
+
+// Combinando parámetros y configuración
+const result4 = await request<Product[]>('/api/products', {
+  params: { category: 'electronics', limit: 10 },
+  config: { timeout: 8000, headers: { 'X-Custom': 'value' } }
+});
+```
 
 ## 🤝 Contribución
 

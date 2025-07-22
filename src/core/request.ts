@@ -4,14 +4,29 @@ import { ApiResult, RequestConfig } from '../types';
 /**
  * Función principal para realizar peticiones GET con tipado
  * Retorna un objeto tipado con { data, error }
+ * 
+ * @param url - URL de la petición
+ * @param options - Opciones de configuración
+ * @param options.params - Parámetros de consulta (query params)
+ * @param options.config - Configuración adicional (timeout, signal, headers, etc.)
  */
 export async function request<T = any>(
   url: string,
-  config?: RequestConfig
+  options?: {
+    params?: Record<string, any>;
+    config?: RequestConfig;
+  }
 ): Promise<ApiResult<T>> {
   try {
     const apiClient = getApiClient();
-    const data = await apiClient.get<T>(url, config);
+    
+    // Construir URL con parámetros si se proporcionan
+    const finalUrl = options?.params ? buildUrl(url, options.params) : url;
+    
+    // Usar configuración proporcionada o undefined
+    const finalConfig = options?.config;
+    
+    const data = await apiClient.get<T>(finalUrl, finalConfig);
     
     return {
       data,

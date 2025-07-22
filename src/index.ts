@@ -4,7 +4,7 @@
  */
 
 // Exportaciones principales
-export { request, requestWithParams, requestWithTimeout, requestWithAbort } from './core/request';
+export { request } from './core/request';
 export { useApi, useApiWithParams, useApiWithDeps, useApiWithTransform, useApiWithValidation, useApiWithMutation } from './hooks/useApi';
 
 // Cliente API

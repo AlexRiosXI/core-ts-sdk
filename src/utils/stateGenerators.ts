@@ -20,6 +20,7 @@ function getInitialValue(schema: ZodTypeAny): any {
     return getInitialValue(schema.unwrap() as ZodTypeAny);
   }
 
+  
   // Maneja tipos con valores por defecto
   if (schema instanceof ZodDefault) {
     try {

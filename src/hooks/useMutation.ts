@@ -2,14 +2,16 @@ import { useState } from 'react'
 import { axiosClient } from '../client/apiClient'
 import { MutationRequest}from '../types'
 import { generateInitialState } from '../utils/stateGenerators'
+import { z } from 'zod'
 
 
-const useMutation = <T> (mutation: MutationRequest) => {
-    const initialState = generateInitialState(mutation.schema)
-    console.log(initialState)
-        
+
+
+const useMutation =  (mutation: MutationRequest) => {
+
+    type T = z.infer<typeof mutation.schema>
     
-    const [data, setData] = useState<T | null>(null)
+    const [data, setData] = useState<T | null>(generateInitialState(mutation.schema) as T)
     const [error, setError] = useState<Error | null>(null)
     const [status, setStatus] = useState<number>(0)
     const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -28,6 +30,24 @@ const useMutation = <T> (mutation: MutationRequest) => {
         setError(null)
         setStatus(0)
     }
+
+
+    //Props generation
+          const handleChange = (name: keyof T) => (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+      ) => {
+        setData((prev) => ({
+          ...(prev || {}),
+          [name]: e.target.value,
+        } as T));
+      };
+    
+      const register = (name: keyof T) => ({
+        name,
+        value: data?.[name] ?? "",
+        onChange: handleChange(name),
+      });
+    
     return {
         data,
         error,
@@ -35,7 +55,7 @@ const useMutation = <T> (mutation: MutationRequest) => {
         mutate,
         reset,
         isLoading,
-        
+        register
     }
 }
 

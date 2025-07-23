@@ -1,6 +1,10 @@
-import { testInit, default as useRequest } from './hooks/useRequest';
-import { Request } from './types';
+import { default as useRequest } from './hooks/useRequest';
+import { default as useMutation } from './hooks/useMutation';
+import { Request, MutationRequest } from './types';
 
-export { testInit, useRequest as default }
 
-export type { Request }
+
+
+export { useRequest, useMutation }
+
+export type { Request, MutationRequest }

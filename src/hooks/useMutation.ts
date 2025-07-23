@@ -1,17 +1,17 @@
 import { useState } from 'react'
 import { axiosClient } from '../client/apiClient'
-import { Request } from '../types'
+import { MutationRequest}from '../types'
 
 
 
-const useRequest = <T> (request: Request) => {
+const useMutation = <T> (mutation: MutationRequest) => {
     const [data, setData] = useState<T | null>(null)
     const [error, setError] = useState<Error | null>(null)
     const [status, setStatus] = useState<number>(0)
     const [isLoading, setIsLoading] = useState<boolean>(false)
-    const query = async () => {
+    const mutate = async () => {
         setIsLoading(true)
-        const response = await axiosClient(request)
+        const response = await axiosClient(mutation)
         setData(response.data)
         setStatus(response.status)
         setError(response.error)
@@ -28,10 +28,10 @@ const useRequest = <T> (request: Request) => {
         data,
         error,
         status,
-        query,
+        mutate,
         reset,
         isLoading
     }
 }
 
-export default useRequest
+export default useMutation

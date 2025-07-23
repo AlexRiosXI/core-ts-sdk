@@ -6,19 +6,19 @@ import { ApiResult, UseApiOptions } from '../types';
  * Hook personalizado que utiliza SWR para realizar peticiones GET
  * Proporciona caché automático, revalidación y manejo de estado
  */
-export function useApi<T = any>(
+export function useApi<T = unknown>(
   url: string | null,
   options?: UseApiOptions
-): SWRResponse<ApiResult<T>, any> {
+): SWRResponse<ApiResult<T>, unknown> {
   const swrOptions: SWRConfiguration = {
     revalidateOnFocus: options?.revalidateOnFocus ?? true,
     revalidateOnReconnect: options?.revalidateOnReconnect ?? true,
-    refreshInterval: options?.refreshInterval,
-    dedupingInterval: options?.dedupingInterval,
-    errorRetryCount: options?.errorRetryCount,
-    errorRetryInterval: options?.errorRetryInterval,
-    onSuccess: options?.onSuccess,
-    onError: options?.onError,
+    ...(options?.refreshInterval !== undefined && { refreshInterval: options.refreshInterval }),
+    ...(options?.dedupingInterval !== undefined && { dedupingInterval: options.dedupingInterval }),
+    ...(options?.errorRetryCount !== undefined && { errorRetryCount: options.errorRetryCount }),
+    ...(options?.errorRetryInterval !== undefined && { errorRetryInterval: options.errorRetryInterval }),
+    ...(options?.onSuccess && { onSuccess: options.onSuccess }),
+    ...(options?.onError && { onError: options.onError }),
   };
 
   return useSWR<ApiResult<T>>(
@@ -33,11 +33,11 @@ export function useApi<T = any>(
 /**
  * Hook para peticiones con parámetros de consulta
  */
-export function useApiWithParams<T = any>(
+export function useApiWithParams<T = unknown>(
   baseUrl: string | null,
-  params?: Record<string, any>,
+  params?: Record<string, unknown>,
   options?: UseApiOptions
-): SWRResponse<ApiResult<T>, any> {
+): SWRResponse<ApiResult<T>, unknown> {
   const url = baseUrl ? buildUrl(baseUrl, params) : null;
   return useApi<T>(url, options);
 }
@@ -45,11 +45,11 @@ export function useApiWithParams<T = any>(
 /**
  * Hook para peticiones con dependencias (re-ejecuta cuando cambian las dependencias)
  */
-export function useApiWithDeps<T = any>(
+export function useApiWithDeps<T = unknown>(
   url: string | null,
-  deps: any[],
+  deps: unknown[],
   options?: UseApiOptions
-): SWRResponse<ApiResult<T>, any> {
+): SWRResponse<ApiResult<T>, unknown> {
   const swrOptions: SWRConfiguration = {
     ...options,
     revalidateIfStale: true,
@@ -58,7 +58,7 @@ export function useApiWithDeps<T = any>(
 
   return useSWR<ApiResult<T>>(
     url ? [url, ...deps] : null,
-    async ([url]: [string, ...any[]]) => {
+    async ([url]: [string, ...unknown[]]) => {
       return await request<T>(url);
     },
     swrOptions
@@ -68,11 +68,11 @@ export function useApiWithDeps<T = any>(
 /**
  * Hook para peticiones con transformación de datos
  */
-export function useApiWithTransform<T = any, R = any>(
+export function useApiWithTransform<T = unknown, R = unknown>(
   url: string | null,
   transform: (data: T) => R,
   options?: UseApiOptions
-): SWRResponse<ApiResult<R>, any> {
+): SWRResponse<ApiResult<R>, unknown> {
   return useSWR<ApiResult<R>>(
     url,
     async (url: string) => {
@@ -94,15 +94,15 @@ export function useApiWithTransform<T = any, R = any>(
 /**
  * Hook para peticiones con validación de datos
  */
-export function useApiWithValidation<T = any>(
+export function useApiWithValidation<T = unknown>(
   url: string | null,
-  validator: (data: any) => data is T,
+  validator: (data: unknown) => data is T,
   options?: UseApiOptions
-): SWRResponse<ApiResult<T>, any> {
+): SWRResponse<ApiResult<T>, unknown> {
   return useSWR<ApiResult<T>>(
     url,
     async (url: string) => {
-      const result = await request<any>(url);
+      const result = await request<unknown>(url);
       
       if (result.error) {
         return result as ApiResult<T>;
@@ -130,7 +130,7 @@ export function useApiWithValidation<T = any>(
 /**
  * Función helper para construir URLs con parámetros
  */
-function buildUrl(baseUrl: string, params?: Record<string, any>): string {
+function buildUrl(baseUrl: string, params?: Record<string, unknown>): string {
   if (!params || Object.keys(params).length === 0) {
     return baseUrl;
   }
@@ -150,28 +150,9 @@ function buildUrl(baseUrl: string, params?: Record<string, any>): string {
 /**
  * Hook para peticiones con mutación (para futuras implementaciones POST/PUT/DELETE)
  */
-export function useApiWithMutation<T = any>(
+export function useApiWithMutation<T = unknown>(
   url: string | null,
   options?: UseApiOptions
-): SWRResponse<ApiResult<T>, any> & {
-  mutate: (data?: T, options?: { revalidate?: boolean }) => Promise<void>;
-} {
-  const swrResponse = useApi<T>(url, options);
-  
-  return {
-    ...swrResponse,
-    mutate: async (data?: T, mutateOptions?: { revalidate?: boolean }) => {
-      if (data) {
-        await swrResponse.mutate(
-          {
-            data,
-            error: null,
-          },
-          { revalidate: mutateOptions?.revalidate ?? false }
-        );
-      } else {
-        await swrResponse.mutate();
-      }
-    },
-  };
+): SWRResponse<ApiResult<T>, unknown> {
+  return useApi<T>(url, options);
 } 

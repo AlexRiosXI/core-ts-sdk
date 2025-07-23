@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { request } from '../core/request';
-import { ApiResult, RequestConfig } from '../types';
+import { RequestConfig } from '../types';
 
 /**
  * Hook for making HTTP GET requests with state management
@@ -14,15 +14,22 @@ import { ApiResult, RequestConfig } from '../types';
  * @param options.dependencies - Array of dependencies that trigger re-execution
  * @returns Object containing request state and data
  */
-export function useRequest<T = any>(
+export function useRequest<T = unknown>(
   url: string | null,
   options?: {
-    params?: Record<string, any>;
+    params?: Record<string, unknown>;
     config?: RequestConfig;
     enabled?: boolean;
-    dependencies?: any[];
+    dependencies?: unknown[];
   }
-) {
+): {
+  data: T | null;
+  error: string | null;
+  isLoading: boolean;
+  status: number | null;
+  refetch: () => void;
+  cancel: () => void;
+} {
   // State management
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -44,7 +51,7 @@ export function useRequest<T = any>(
   }, []);
 
   // Main request function
-  const executeRequest = useCallback(async () => {
+  const executeRequest = useCallback(async (): Promise<void> => {
     if (!url || options?.enabled === false) {
       return;
     }
@@ -59,7 +66,7 @@ export function useRequest<T = any>(
 
     try {
       const requestOptions: {
-        params?: Record<string, any>;
+        params?: Record<string, unknown>;
         config?: RequestConfig;
       } = {};
 
@@ -87,26 +94,29 @@ export function useRequest<T = any>(
 
       if (result.error) {
         setError(result.error.message);
-        setStatus(result.error.status || null);
+        setStatus(result.error.status ?? null);
         setData(null);
       } else {
         setData(result.data);
         setError(null);
         setStatus(200); // Assuming success if no error
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Check if component is still mounted
       if (!isMountedRef.current) {
         return;
       }
 
       // Handle abort errors separately
-      if (err.name === 'AbortError') {
+      if (err instanceof Error && err.name === 'AbortError') {
         return; // Don't set error for aborted requests
       }
 
-      setError(err.message || 'An unexpected error occurred');
-      setStatus(err.status || null);
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+      const errorStatus = (err as { status?: number })?.status ?? null;
+      
+      setError(errorMessage);
+      setStatus(errorStatus);
       setData(null);
     } finally {
       // Check if component is still mounted
@@ -118,16 +128,16 @@ export function useRequest<T = any>(
 
   // Execute request when dependencies change
   useEffect(() => {
-    executeRequest();
-  }, [executeRequest, ...(options?.dependencies || [])]);
+    void executeRequest();
+  }, [executeRequest, ...(options?.dependencies ?? [])]);
 
   // Manual refetch function
-  const refetch = useCallback(() => {
-    executeRequest();
+  const refetch = useCallback((): void => {
+    void executeRequest();
   }, [executeRequest]);
 
   // Cancel current request
-  const cancel = useCallback(() => {
+  const cancel = useCallback((): void => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
@@ -152,18 +162,26 @@ export function useRequest<T = any>(
  * @param options.retryDelay - Delay between retries in ms (default: 1000)
  * @param options.retryCondition - Function to determine if retry should happen
  */
-export function useRequestWithRetry<T = any>(
+export function useRequestWithRetry<T = unknown>(
   url: string | null,
   options?: {
-    params?: Record<string, any>;
+    params?: Record<string, unknown>;
     config?: RequestConfig;
     enabled?: boolean;
-    dependencies?: any[];
+    dependencies?: unknown[];
     retryCount?: number;
     retryDelay?: number;
-    retryCondition?: (error: any) => boolean;
+    retryCondition?: (error: unknown) => boolean;
   }
-) {
+): {
+  data: T | null;
+  error: string | null;
+  isLoading: boolean;
+  status: number | null;
+  retryAttempt: number;
+  refetch: () => void;
+  cancel: () => void;
+} {
   const [retryAttempt, setRetryAttempt] = useState(0);
   const retryTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -172,18 +190,20 @@ export function useRequestWithRetry<T = any>(
     error,
     isLoading,
     status,
-    
     cancel,
   } = useRequest<T>(url, {
     ...options,
-    dependencies: [...(options?.dependencies || []), retryAttempt],
+    dependencies: [...(options?.dependencies ?? []), retryAttempt],
   });
 
   // Enhanced refetch with retry logic
-  const refetchWithRetry = useCallback(async () => {
-    const maxRetries = options?.retryCount || 3;
-    const delay = options?.retryDelay || 1000;
-    const shouldRetry = options?.retryCondition || ((err: any) => err.status >= 500);
+  const refetchWithRetry = useCallback(async (): Promise<void> => {
+    const maxRetries = options?.retryCount ?? 3;
+    const delay = options?.retryDelay ?? 1000;
+    const shouldRetry = options?.retryCondition ?? ((err: unknown) => {
+      const errorStatus = (err as { status?: number })?.status ?? 0;
+      return errorStatus >= 500;
+    });
 
     if (error && retryAttempt < maxRetries && shouldRetry(error)) {
       // Clear any existing timeout
@@ -199,7 +219,7 @@ export function useRequestWithRetry<T = any>(
   }, [error, retryAttempt, options?.retryCount, options?.retryDelay, options?.retryCondition]);
 
   // Enhanced cancel function
-  const cancelWithCleanup = useCallback(() => {
+  const cancelWithCleanup = useCallback((): void => {
     if (retryTimeoutRef.current) {
       clearTimeout(retryTimeoutRef.current);
     }
@@ -233,17 +253,26 @@ export function useRequestWithRetry<T = any>(
  * @param options - Request configuration options
  * @param options.optimisticData - Data to show immediately while loading
  */
-export function useRequestOptimistic<T = any>(
+export function useRequestOptimistic<T = unknown>(
   url: string | null,
   options?: {
-    params?: Record<string, any>;
+    params?: Record<string, unknown>;
     config?: RequestConfig;
     enabled?: boolean;
-    dependencies?: any[];
+    dependencies?: unknown[];
     optimisticData?: T;
   }
-) {
-  const [optimisticData, setOptimisticData] = useState<T | null>(options?.optimisticData || null);
+): {
+  data: T | null;
+  error: string | null;
+  isLoading: boolean;
+  status: number | null;
+  refetch: () => void;
+  cancel: () => void;
+  setOptimistic: (newData: T) => void;
+  optimisticData: T | null;
+} {
+  const [optimisticData, setOptimisticData] = useState<T | null>(options?.optimisticData ?? null);
 
   const {
     data,
@@ -258,7 +287,7 @@ export function useRequestOptimistic<T = any>(
   const displayData = isLoading && optimisticData ? optimisticData : data;
 
   // Update optimistic data
-  const setOptimistic = useCallback((newData: T) => {
+  const setOptimistic = useCallback((newData: T): void => {
     setOptimisticData(newData);
   }, []);
 

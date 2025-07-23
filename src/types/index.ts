@@ -3,85 +3,85 @@
  */
 
 // Tipos de respuesta estándar
-export interface ApiResponse<T = any> {
+export type ApiResponse<T = unknown> = {
   data: T;
   error: null;
-}
+};
 
-export interface ApiError {
+export type ApiError = {
   data: null;
   error: {
     message: string;
     code?: string;
     status?: number;
   };
-}
+};
 
 export type ApiResult<T> = ApiResponse<T> | ApiError;
 
 // Tipos para autenticación
-export interface AuthToken {
+export type AuthToken = {
   access_token: string;
   token_type: string;
   expires_in: number;
   refresh_token?: string;
-}
+};
 
-export interface User {
+export type User = {
   id: string;
   email: string;
   name: string;
   role: string;
   created_at: string;
   updated_at: string;
-}
+};
 
 // Tipos para configuración del cliente
-export interface ApiClientConfig {
+export type ApiClientConfig = {
   baseURL: string;
   timeout?: number;
   headers?: Record<string, string>;
   withCredentials?: boolean;
-}
+};
 
-export interface RequestConfig {
+export type RequestConfig = {
   headers?: Record<string, string>;
   timeout?: number;
   signal?: AbortSignal;
-}
+};
 
 // Tipos para hooks
-export interface UseApiOptions {
+export type UseApiOptions = {
   revalidateOnFocus?: boolean;
   revalidateOnReconnect?: boolean;
   refreshInterval?: number;
   dedupingInterval?: number;
   errorRetryCount?: number;
   errorRetryInterval?: number;
-  onSuccess?: (data: any) => void;
-  onError?: (error: any) => void;
-}
+  onSuccess?: (data: unknown) => void;
+  onError?: (error: unknown) => void;
+};
 
 // Tipos para middleware
-export interface MiddlewareContext {
+export type MiddlewareContext = {
   request: {
     url: string;
     method: string;
     headers: Record<string, string>;
-    data?: any;
+    data?: unknown;
   };
   response?: {
-    data: any;
+    data: unknown;
     status: number;
     headers: Record<string, string>;
   };
-  error?: any;
-}
+  error?: unknown;
+};
 
 export type Middleware = (context: MiddlewareContext) => Promise<MiddlewareContext>;
 
 // Tipos para contratos compartidos (ejemplos)
-export interface Product {
+export type Product = {
   id: string;
   name: string;
   description: string;
@@ -89,9 +89,9 @@ export interface Product {
   category: string;
   created_at: string;
   updated_at: string;
-}
+};
 
-export interface Order {
+export type Order = {
   id: string;
   user_id: string;
   products: Array<{
@@ -103,9 +103,9 @@ export interface Order {
   status: 'pending' | 'processing' | 'completed' | 'cancelled';
   created_at: string;
   updated_at: string;
-}
+};
 
-export interface PaginatedResponse<T> {
+export type PaginatedResponse<T> = {
   data: T[];
   pagination: {
     page: number;
@@ -113,11 +113,11 @@ export interface PaginatedResponse<T> {
     total: number;
     total_pages: number;
   };
-}
+};
 
 // Tipos de utilidad
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
-export interface QueryParams {
+export type QueryParams = {
   [key: string]: string | number | boolean | undefined;
-} 
+}; 

@@ -32,7 +32,7 @@ export function getAuthToken(): string | null {
   try {
     return localStorage.getItem('sierra_madre_auth_token');
   } catch (error) {
-    console.warn('Error al obtener token de localStorage:', error);
+    // Silently handle localStorage errors in SSR environments
     return null;
   }
 }
@@ -48,7 +48,7 @@ export function setAuthToken(token: string): void {
   try {
     localStorage.setItem('sierra_madre_auth_token', token);
   } catch (error) {
-    console.warn('Error al guardar token en localStorage:', error);
+    // Silently handle localStorage errors in SSR environments
   }
 }
 
@@ -63,7 +63,7 @@ export function removeAuthToken(): void {
   try {
     localStorage.removeItem('sierra_madre_auth_token');
   } catch (error) {
-    console.warn('Error al eliminar token de localStorage:', error);
+    // Silently handle localStorage errors in SSR environments
   }
 }
 
@@ -83,7 +83,7 @@ export function createConditionalAuthMiddleware(
   requiresAuth: (url: string) => boolean = () => true
 ): (config: AxiosRequestConfig) => AxiosRequestConfig {
   return (config: AxiosRequestConfig): AxiosRequestConfig => {
-    const url = config.url || '';
+    const url = config.url ?? '';
     
     if (requiresAuth(url)) {
       const token = getAuthToken();
@@ -93,9 +93,8 @@ export function createConditionalAuthMiddleware(
           ...config.headers,
           Authorization: `Bearer ${token}`,
         };
-      } else {
-        console.warn(`Petición a ${url} requiere autenticación pero no hay token disponible`);
       }
+      // Note: Removed console.warn as it's not appropriate for production middleware
     }
     
     return config;

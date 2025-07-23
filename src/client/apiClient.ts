@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { ApiClientConfig, RequestConfig } from '../types';
 
 /**
@@ -12,12 +12,12 @@ class ApiClient {
   constructor(config: ApiClientConfig) {
     this.client = axios.create({
       baseURL: config.baseURL,
-      timeout: config.timeout || 10000,
+      timeout: config.timeout ?? 10000,
       headers: {
         'Content-Type': 'application/json',
         ...config.headers,
       },
-      withCredentials: config.withCredentials || false,
+      withCredentials: config.withCredentials ?? false,
     });
 
     this.setupInterceptors();
@@ -29,10 +29,10 @@ class ApiClient {
   private setupInterceptors(): void {
     // Interceptor de solicitud
     this.client.interceptors.request.use(
-      (config) => {
+      (config: InternalAxiosRequestConfig) => {
         // Aplicar middlewares de solicitud
         this.middlewares.forEach((middleware) => {
-          config = middleware(config);
+          config = middleware(config) as InternalAxiosRequestConfig;
         });
         return config;
       },
@@ -49,8 +49,8 @@ class ApiClient {
       (error) => {
         // Manejo centralizado de errores
         const errorResponse = {
-          message: error.response?.data?.message || error.message || 'Error de red',
-          status: error.response?.status || 0,
+          message: error.response?.data?.message ?? error.message ?? 'Error de red',
+          status: error.response?.status ?? 0,
           code: error.code,
           data: error.response?.data,
         };
@@ -70,17 +70,21 @@ class ApiClient {
   /**
    * Realiza una petición GET
    */
-  public async get<T = any>(url: string, config?: RequestConfig): Promise<T> {
-    try {
-      const response = await this.client.get<T>(url, {
-        headers: config?.headers,
-        timeout: config?.timeout,
-        signal: config?.signal,
-      });
-      return response.data;
-    } catch (error) {
-      throw error;
+  public async get<T = unknown>(url: string, config?: RequestConfig): Promise<T> {
+    const requestConfig: AxiosRequestConfig = {};
+    
+    if (config?.headers) {
+      requestConfig.headers = config.headers;
     }
+    if (config?.timeout) {
+      requestConfig.timeout = config.timeout;
+    }
+    if (config?.signal) {
+      requestConfig.signal = config.signal;
+    }
+    
+    const response = await this.client.get<T>(url, requestConfig);
+    return response.data;
   }
 
   /**

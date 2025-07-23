@@ -10,10 +10,10 @@ import { ApiResult, RequestConfig } from '../types';
  * @param options.params - Parámetros de consulta (query params)
  * @param options.config - Configuración adicional (timeout, signal, headers, etc.)
  */
-export async function request<T = any>(
+export async function request<T = unknown>(
   url: string,
   options?: {
-    params?: Record<string, any>;
+    params?: Record<string, unknown>;
     config?: RequestConfig;
   }
 ): Promise<ApiResult<T>> {
@@ -32,13 +32,17 @@ export async function request<T = any>(
       data,
       error: null,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+    const errorCode = (error as { code?: string })?.code;
+    const errorStatus = (error as { status?: number })?.status;
+    
     return {
       data: null,
       error: {
-        message: error.message || 'Error desconocido',
-        code: error.code,
-        status: error.status,
+        message: errorMessage,
+        ...(errorCode && { code: errorCode }),
+        ...(errorStatus && { status: errorStatus }),
       },
     };
   }
@@ -47,7 +51,7 @@ export async function request<T = any>(
 /**
  * Función helper para construir URLs con parámetros de consulta
  */
-export function buildUrl(baseUrl: string, params?: Record<string, any>): string {
+export function buildUrl(baseUrl: string, params?: Record<string, unknown>): string {
   if (!params || Object.keys(params).length === 0) {
     return baseUrl;
   }
@@ -67,39 +71,43 @@ export function buildUrl(baseUrl: string, params?: Record<string, any>): string 
 /**
  * Función para realizar peticiones GET con parámetros de consulta
  */
-export async function requestWithParams<T = any>(
+export async function requestWithParams<T = unknown>(
   baseUrl: string,
-  params?: Record<string, any>,
+  params?: Record<string, unknown>,
   config?: RequestConfig
 ): Promise<ApiResult<T>> {
   const url = buildUrl(baseUrl, params);
-  return request<T>(url, config);
+  return request<T>(url, { ...(config && { config }) });
 }
 
 /**
  * Función para realizar peticiones GET con timeout personalizado
  */
-export async function requestWithTimeout<T = any>(
+export async function requestWithTimeout<T = unknown>(
   url: string,
   timeout: number,
   config?: Omit<RequestConfig, 'timeout'>
 ): Promise<ApiResult<T>> {
   return request<T>(url, {
-    ...config,
-    timeout,
+    config: {
+      ...config,
+      timeout,
+    },
   });
 }
 
 /**
  * Función para realizar peticiones GET con cancelación
  */
-export async function requestWithAbort<T = any>(
+export async function requestWithAbort<T = unknown>(
   url: string,
   signal: AbortSignal,
   config?: Omit<RequestConfig, 'signal'>
 ): Promise<ApiResult<T>> {
   return request<T>(url, {
-    ...config,
-    signal,
+    config: {
+      ...config,
+      signal,
+    },
   });
 } 

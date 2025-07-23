@@ -3,6 +3,10 @@
  * Funciones básicas de llamado a APIs con tipado fuerte
  */
 
+// Importaciones internas
+import { initializeApiClient, createApiClient } from './client/apiClient';
+import { createAuthMiddleware, createConditionalAuthMiddleware } from './middleware/authMiddleware';
+
 // Exportaciones principales
 export { request } from './core/request';
 export { useApi, useApiWithParams, useApiWithDeps, useApiWithTransform, useApiWithValidation, useApiWithMutation } from './hooks/useApi';
@@ -52,7 +56,7 @@ export const DEFAULT_CONFIG = {
 } as const;
 
 // Función de inicialización rápida
-export function initializeSierraMadreSDK(config?: Partial<typeof DEFAULT_CONFIG>) {
+export function initializeSierraMadreSDK(config?: Partial<typeof DEFAULT_CONFIG>): ReturnType<typeof initializeApiClient> {
   const finalConfig = { ...DEFAULT_CONFIG, ...config };
   const apiClient = initializeApiClient(finalConfig);
   
@@ -63,7 +67,7 @@ export function initializeSierraMadreSDK(config?: Partial<typeof DEFAULT_CONFIG>
 }
 
 // Función helper para crear un cliente con autenticación
-export function createAuthenticatedClient(baseURL: string) {
+export function createAuthenticatedClient(baseURL: string): ReturnType<typeof createApiClient> {
   const apiClient = createApiClient({ baseURL });
   apiClient.addMiddleware(createAuthMiddleware());
   return apiClient;
@@ -73,7 +77,7 @@ export function createAuthenticatedClient(baseURL: string) {
 export function createConditionalAuthenticatedClient(
   baseURL: string,
   requiresAuth: (url: string) => boolean
-) {
+): ReturnType<typeof createApiClient> {
   const apiClient = createApiClient({ baseURL });
   apiClient.addMiddleware(createConditionalAuthMiddleware(requiresAuth));
   return apiClient;

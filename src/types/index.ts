@@ -1,4 +1,4 @@
-
+import { z } from "zod";
 
 export type Request = {
     baseUrl: string;
@@ -14,6 +14,7 @@ export type Request = {
 
 export type MutationRequest = {
     baseUrl: string;
+    schema: z.ZodSchema;
     path: string;
     method: 'POST' | 'PUT' | 'DELETE' | 'PATCH';
     body: unknown;

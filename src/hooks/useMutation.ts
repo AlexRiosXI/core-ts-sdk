@@ -1,10 +1,14 @@
 import { useState } from 'react'
 import { axiosClient } from '../client/apiClient'
 import { MutationRequest}from '../types'
-
+import { generateInitialState } from '../utils/stateGenerators'
 
 
 const useMutation = <T> (mutation: MutationRequest) => {
+    const initialState = generateInitialState(mutation.schema)
+    console.log(initialState)
+        
+    
     const [data, setData] = useState<T | null>(null)
     const [error, setError] = useState<Error | null>(null)
     const [status, setStatus] = useState<number>(0)
@@ -30,7 +34,8 @@ const useMutation = <T> (mutation: MutationRequest) => {
         status,
         mutate,
         reset,
-        isLoading
+        isLoading,
+        
     }
 }
 

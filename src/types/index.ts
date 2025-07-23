@@ -1,123 +1,13 @@
-/**
- * Tipos principales del SDK de Sierra Madre
- */
 
-// Tipos de respuesta estándar
-export type ApiResponse<T = unknown> = {
-  data: T;
-  error: null;
-};
 
-export type ApiError = {
-  data: null;
-  error: {
-    message: string;
-    code?: string;
-    status?: number;
-  };
-};
-
-export type ApiResult<T> = ApiResponse<T> | ApiError;
-
-// Tipos para autenticación
-export type AuthToken = {
-  access_token: string;
-  token_type: string;
-  expires_in: number;
-  refresh_token?: string;
-};
-
-export type User = {
-  id: string;
-  email: string;
-  name: string;
-  role: string;
-  created_at: string;
-  updated_at: string;
-};
-
-// Tipos para configuración del cliente
-export type ApiClientConfig = {
-  baseURL: string;
-  timeout?: number;
-  headers?: Record<string, string>;
-  withCredentials?: boolean;
-};
-
-export type RequestConfig = {
-  headers?: Record<string, string>;
-  timeout?: number;
-  signal?: AbortSignal;
-};
-
-// Tipos para hooks
-export type UseApiOptions = {
-  revalidateOnFocus?: boolean;
-  revalidateOnReconnect?: boolean;
-  refreshInterval?: number;
-  dedupingInterval?: number;
-  errorRetryCount?: number;
-  errorRetryInterval?: number;
-  onSuccess?: (data: unknown) => void;
-  onError?: (error: unknown) => void;
-};
-
-// Tipos para middleware
-export type MiddlewareContext = {
-  request: {
-    url: string;
-    method: string;
-    headers: Record<string, string>;
-    data?: unknown;
-  };
-  response?: {
-    data: unknown;
-    status: number;
-    headers: Record<string, string>;
-  };
-  error?: unknown;
-};
-
-export type Middleware = (context: MiddlewareContext) => Promise<MiddlewareContext>;
-
-// Tipos para contratos compartidos (ejemplos)
-export type Product = {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  category: string;
-  created_at: string;
-  updated_at: string;
-};
-
-export type Order = {
-  id: string;
-  user_id: string;
-  products: Array<{
-    product_id: string;
-    quantity: number;
-    price: number;
-  }>;
-  total: number;
-  status: 'pending' | 'processing' | 'completed' | 'cancelled';
-  created_at: string;
-  updated_at: string;
-};
-
-export type PaginatedResponse<T> = {
-  data: T[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    total_pages: number;
-  };
-};
-
-// Tipos de utilidad
-export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
-
-export type QueryParams = {
-  [key: string]: string | number | boolean | undefined;
-}; 
+export type Request = {
+    baseUrl: string;
+    path: string;
+    method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+    body: unknown;
+    params: Record<string, string>;
+    query: Record<string, string>;
+    responseType: 'json' | 'text' | 'blob' | 'arrayBuffer';
+    timeout: number;
+    contentType: 'application/json' | 'application/x-www-form-urlencoded' | 'multipart/form-data' | 'text/plain';
+}

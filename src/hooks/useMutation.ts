@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { axiosClient } from '../client/apiClient'
 import { MutationRequest}from '../types'
 import { generateInitialState } from '../utils/stateGenerators'
 import { z } from 'zod'
+
+
 
 
 
@@ -15,23 +17,33 @@ const useMutation =  (mutation: MutationRequest) => {
     const [errors, setErrors] = useState<z.infer<typeof mutation.schema> | null>(null)
     const [error, setError] = useState<Error | null>(null)
     const [status, setStatus] = useState<number>(0)
-    const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [fetchedExistingData, setFetchedExistingData] = useState(false)
+    
+    const [isLoading, setIsLoading] = useState<boolean>(mutation.initialLoading)
+
+
+    const fetchExistingData = async () => {
+      const response = await axiosClient(mutation.existingDataRequest)
+      console.log(response, "response")
+      setData(response.data)
+      setStatus(response.status)
+      setError(response.error)
+      setIsLoading(false)
+      setFetchedExistingData(true)
+      if(error){
+        throw error
+      }
+    }
+
+    
     const mutate = async () => {
-        console.log("mutate")
-      
         const result = mutation.schema.safeParse(data)
         if (!result.success) {
-            console.log("error")
             setErrors(result.error.flatten().fieldErrors)
             return false
         }else{
             setErrors(null)
         }
-        
-      
-        
-
-        return "hola"
         const response = await axiosClient(mutation)
         setData(response.data)
         setStatus(response.status)
@@ -58,17 +70,50 @@ const useMutation =  (mutation: MutationRequest) => {
 
 
       };
-    
+      
       const register = (name: keyof T) => ({
         name,
         value: data?.[name] ?? "",
         onChange: handleChange(name),
         isInvalid: !!errors?.[name] ,
-        errorMessage: errors?.[name]?.[0]
+        errorMessage: errors?.[name]?.[0],
+        isDisabled: isLoading
       });
     
+      //Partial validation tool
+      const partialValidation = (fields: string[]) => {
+        const result = mutation.schema.safeParse(data)
+        if (!result.success) {
+          const fieldErrorsTyped: Record<string, string[]> = result.error.flatten().fieldErrors as Record<string, string[]>;
+          const filteredErrors: Record<string, string[]> = {};
+          for (const field of fields) {
+            if (fieldErrorsTyped[field]) {
+              filteredErrors[field] = fieldErrorsTyped[field]!;
+            }
+          }
+          if (Object.keys(filteredErrors).length > 0) {
+            setErrors(filteredErrors)
+            return false
+          }
+        }
+      
+        setErrors(null)
+        return true
+      }
 
-  
+
+      useEffect(() => {
+        if(mutation.existingDataRequest && !fetchedExistingData){
+          fetchExistingData()
+        }
+      }, [mutation.existingDataRequest, fetchedExistingData])
+
+
+      useEffect(() => { 
+      setErrors(null)
+      }, [data])
+   
+      
 
     return {
         data,
@@ -78,7 +123,8 @@ const useMutation =  (mutation: MutationRequest) => {
         reset,
         isLoading,
         register,
-        errors
+        errors,
+        partialValidation
         
     }
 }

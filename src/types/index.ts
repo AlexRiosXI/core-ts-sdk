@@ -23,4 +23,6 @@ export type MutationRequest = {
     responseType: 'json' | 'text' | 'blob' | 'arrayBuffer';
     timeout: number;
     contentType: 'application/json' | 'application/x-www-form-urlencoded' | 'multipart/form-data' | 'text/plain';
+    existingDataRequest: Request;
+    initialLoading: boolean;
 }

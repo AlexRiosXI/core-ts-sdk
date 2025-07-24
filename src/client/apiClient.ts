@@ -24,9 +24,7 @@ export const axiosClient = async (request: Request) => {
     }
     switch (request.method) {
         case 'GET':
-            try {
-                console.log('GETing')
-                console.log(url, headers)
+            try {                
                 return await axios.get(url, { headers })
             } catch (error: any) {
                 return handleError(error)

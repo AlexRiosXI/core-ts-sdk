@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { MutationRequest, Request } from '../types'
-import { buildUrl } from '../utils/helpers'
+
 
 const handleError = (error: any) => {
     if (error.response === undefined) {

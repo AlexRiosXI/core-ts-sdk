@@ -19,10 +19,11 @@ const useMutation =  (mutation: MutationRequest) => {
     const [status, setStatus] = useState<number>(0)
     const [fetchedExistingData, setFetchedExistingData] = useState(false)
     
-    const [isLoading, setIsLoading] = useState<boolean>(mutation.initialLoading)
+    const [isLoading, setIsLoading] = useState<boolean>(mutation.initialLoading ?? false)
 
 
     const fetchExistingData = async () => {
+      if(mutation.existingDataRequest){
       const response = await axiosClient(mutation.existingDataRequest)
       console.log(response, "response")
       setData(response.data)
@@ -33,6 +34,7 @@ const useMutation =  (mutation: MutationRequest) => {
       if(error){
         throw error
       }
+    }
     }
 
     

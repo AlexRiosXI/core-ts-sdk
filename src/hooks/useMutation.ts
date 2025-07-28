@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { axiosClient } from '../client/apiClient'
+import { axiosClient, axiosMutation } from '../client/apiClient'
 import { MutationRequest}from '../types'
 import { generateInitialState } from '../utils/stateGenerators'
 import { z } from 'zod'
@@ -36,7 +36,7 @@ const useMutation =  (mutation: MutationRequest) => {
     }
 
     
-    const mutate = async () => {
+    const mutate = async (onSuccess: (data: T) => void = () => {}, onError: (error: Error) => void = () => {}) => {
         const result = mutation.schema.safeParse(data)
         if (!result.success) {
             setErrors(result.error.flatten().fieldErrors)
@@ -44,10 +44,21 @@ const useMutation =  (mutation: MutationRequest) => {
         }else{
             setErrors(null)
         }
-        const response = await axiosClient(mutation)
-        setData(response.data)
+        mutation.body = data
+        const response = await axiosMutation(mutation)
+        if(response.status === mutation.succesfulStatusCode){
+          
+          onSuccess(response.data)
+        }else{
+          if(response.data){
+            setError(response.data.error)
+            onError(response.data.error)
+          }else{
+            setError(response.error)
+            onError(response.error)
+          }
+        }
         setStatus(response.status)
-        setError(response.error)
         setIsLoading(false)
         return response
     }
@@ -124,7 +135,9 @@ const useMutation =  (mutation: MutationRequest) => {
         isLoading,
         register,
         errors,
-        partialValidation
+        partialValidation,
+        setErrors,
+        
         
     }
 }

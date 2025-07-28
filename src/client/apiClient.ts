@@ -14,42 +14,32 @@ const handleError = (error: any) => {
     return error.response
 }
 
+const getAccessToken = () => {
+    return sessionStorage.getItem('sm-access-token')
+}
 
+
+const getApi = (baseURL: string, headers: any) =>
+    axios.create({
+      baseURL,
+      withCredentials: true,
+      headers: headers,
+      
+    });
+  
 
 export const axiosClient = async (request: Request) => {
-    const url = buildUrl(request.baseUrl, request.path, request.params || {})
+    
     const headers = {
         'Content-Type': request.contentType,
-        'Accept': request.responseType
+        'Accept': request.responseType,
+        'Authorization': `Bearer ${getAccessToken()}`
     }
+    const api = getApi(request.baseUrl, headers)
     switch (request.method) {
         case 'GET':
             try {                
-                return await axios.get(url, { headers })
-            } catch (error: any) {
-                return handleError(error)
-            }
-        case 'POST':
-            try {
-                return await axios.post(url, request.body, { headers })
-            } catch (error: any) {
-                return handleError(error)
-            }
-        case 'PUT':
-            try {
-                return await axios.put(url, request.body, { headers })
-            } catch (error: any) {
-                return handleError(error)
-            }
-        case 'DELETE':
-            try {
-                return await axios.delete(url, { headers })
-            } catch (error: any) {
-                return handleError(error)
-            }
-        case 'PATCH':
-            try {
-                return await axios.patch(url, request.body, { headers })
+                return await api.get(request.path, { params: request.params })
             } catch (error: any) {
                 return handleError(error)
             }
@@ -60,33 +50,35 @@ export const axiosClient = async (request: Request) => {
 
 
 export const axiosMutation = async (mutation: MutationRequest) => {
-    const url = buildUrl(mutation.baseUrl, mutation.path, mutation.params || {})
+    
     const headers = {
         'Content-Type': mutation.contentType,
-        'Accept': mutation.responseType
+        'Accept': mutation.responseType,
+        'Authorization': `Bearer ${getAccessToken()}`
     }
+    const api = getApi(mutation.baseUrl, headers)
     switch (mutation.method) {
         case 'POST':
             try {
-                return await axios.post(url, mutation.body, { headers })
+                return await api.post(mutation.path, mutation.body)
             } catch (error: any) {
                 return handleError(error)
             }
         case 'PUT':
             try {
-                return await axios.put(url, mutation.body, { headers })
+                return await api.put(mutation.path, mutation.body)
             } catch (error: any) {
                 return handleError(error)
             }
         case 'DELETE':
             try {
-                return await axios.delete(url, { headers })
+                return await api.delete(mutation.path)
             } catch (error: any) {
                 return handleError(error)
             }
         case 'PATCH':
             try {
-                return await axios.patch(url, mutation.body, { headers })
+                return await api.patch(mutation.path, mutation.body)
             } catch (error: any) {
                 return handleError(error)
             }

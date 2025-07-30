@@ -10,6 +10,7 @@ export type Request = {
     responseType: 'json' | 'text' | 'blob' | 'arrayBuffer';
     timeout: number;
     contentType: 'application/json' | 'application/x-www-form-urlencoded' | 'multipart/form-data' | 'text/plain';
+    autoQuery?: boolean; 
 }
 
 export type MutationRequest = {
@@ -31,3 +32,10 @@ export type MutationRequest = {
 export type Error = {
     message: string;
 }
+
+export type PaginatedResponse<T> = {
+    data: T[];
+    total_items: number;
+    total_pages: number;
+  };
+  

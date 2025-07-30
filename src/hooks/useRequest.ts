@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { axiosClient } from '../client/apiClient'
 import { Request } from '../types'
 
@@ -24,6 +24,11 @@ const useRequest = <T> (request: Request) => {
         setError(null)
         setStatus(0)
     }
+    useEffect(() => {
+        if (request.autoQuery) {
+            query()
+        }
+    }, [])
     return {
         data,
         error,

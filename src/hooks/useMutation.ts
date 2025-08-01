@@ -3,6 +3,7 @@ import { axiosClient, axiosMutation } from '../client/apiClient'
 import { MutationRequest}from '../types'
 import { generateInitialState } from '../utils/stateGenerators'
 import { z } from 'zod'
+import { parseValueBySchema, getFieldSchema } from '../utils/helpers'
 
 
 
@@ -48,7 +49,8 @@ const useMutation =  (mutation: MutationRequest) => {
         }
         mutation.body = data
         const response = await axiosMutation(mutation)
-        if(response.status === mutation.succesfulStatusCode){
+        
+        if(response.status === (mutation.succesfulStatusCode ?? 200)){
           
           onSuccess(response.data)
         }else{
@@ -76,12 +78,22 @@ const useMutation =  (mutation: MutationRequest) => {
           const handleChange = (name: keyof T) => (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
       ) => {
-        setData((prev: any) => ({
-          ...(prev || {}),
-          [name]: e.target.value,
-        } as T));
-
-
+        const fieldSchema = getFieldSchema(mutation.schema, name as string);
+        
+        if (fieldSchema) {
+          const parsedValue = parseValueBySchema(e.target.value, fieldSchema);
+          
+          setData((prev: any) => ({
+            ...(prev || {}),
+            [name]: parsedValue,
+          } as T));
+        } else {
+          // Fallback si no se puede obtener el schema del campo
+          setData((prev: any) => ({
+            ...(prev || {}),
+            [name]: e.target.value,
+          } as T));
+        }
       };
       
       const register = (name: keyof T) => ({

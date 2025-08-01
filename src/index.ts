@@ -4,5 +4,6 @@ import { Request, MutationRequest } from './types';
 import { generateInitialState } from './utils/stateGenerators';
 
 export { useRequest, useMutation, generateInitialState }
+export * from "./types"
 
 export type { Request, MutationRequest }

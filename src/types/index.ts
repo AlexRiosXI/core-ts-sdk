@@ -11,6 +11,8 @@ export type Request = {
     timeout: number;
     contentType: 'application/json' | 'application/x-www-form-urlencoded' | 'multipart/form-data' | 'text/plain';
     autoQuery?: boolean; 
+    idFieldName?: "string"
+    paginated?: boolean;
 }
 
 export type MutationRequest = {

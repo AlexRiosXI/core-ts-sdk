@@ -28,7 +28,7 @@ async function fetchUser(userId: string) {
     return null;
   }
   
-  console.log('Usuario obtenido:', result.data);
+  
   return result.data;
 }
 
@@ -43,7 +43,7 @@ async function fetchProducts(category: string, limit: number = 10) {
     return [];
   }
   
-  console.log('Productos obtenidos:', result.data);
+  
   return result.data;
 }
 
@@ -105,7 +105,7 @@ function ProductListComponent({ category }: { category: string }) {
 // 7. Ejemplo de logout
 function logout() {
   removeAuthToken();
-  console.log('Usuario deslogueado');
+  
 }
 
 // 8. Ejemplo de manejo de errores
@@ -116,17 +116,17 @@ async function handleApiError() {
     if (result.error) {
       switch (result.error.status) {
         case 401:
-          console.log('No autorizado - redirigir a login');
+          
           logout();
           break;
         case 404:
-          console.log('Recurso no encontrado');
+          
           break;
         case 500:
-          console.log('Error del servidor');
+          
           break;
         default:
-          console.log('Error desconocido:', result.error.message);
+          
       }
     }
   } catch (error) {

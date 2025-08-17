@@ -28,7 +28,7 @@ const getApi = (baseURL: string, headers: any) =>
     });
   
 
-export const axiosClient = async (request: Request) => {
+export const axiosClient = async (request: Request, params = {}) => {
     
     const headers = {
         'Content-Type': request.contentType,
@@ -39,7 +39,7 @@ export const axiosClient = async (request: Request) => {
     switch (request.method) {
         case 'GET':
             try {                
-                return await api.get(request.path, { params: request.params })
+                return await api.get(request.path, { params})
             } catch (error: any) {
                 return handleError(error)
             }
@@ -49,7 +49,7 @@ export const axiosClient = async (request: Request) => {
 }
 
 
-export const axiosMutation = async (mutation: MutationRequest) => {
+export const axiosMutation = async (mutation: MutationRequest, body ={}) => {
     
     const headers = {
         'Content-Type': mutation.contentType,
@@ -72,7 +72,7 @@ export const axiosMutation = async (mutation: MutationRequest) => {
             }
         case 'DELETE':
             try {
-                return await api.delete(mutation.path)
+                return await api.delete(mutation.path, {params:body})
             } catch (error: any) {
                 return handleError(error)
             }

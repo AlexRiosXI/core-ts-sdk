@@ -75,7 +75,7 @@ const result = await request<User>('/api/users/1');
 if (result.error) {
   console.error('Error:', result.error.message);
 } else {
-  console.log('Usuario:', result.data);
+  
 }
 ```
 

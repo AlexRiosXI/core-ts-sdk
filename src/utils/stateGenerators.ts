@@ -96,7 +96,7 @@ const userSchema = z.object({
 
 // Generar estado inicial
 const initialState = generateInitialState(userSchema);
-console.log(initialState);
+
 // Resultado esperado:
 // {
 //   name: "",

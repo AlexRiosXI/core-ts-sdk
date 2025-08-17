@@ -6,27 +6,32 @@ import { z } from 'zod'
 import { parseValueBySchema, getFieldSchema } from '../utils/helpers'
 
 
+type MutateOptions<T> = {
+  onSuccess?: (data: T) => void;
+  onError?: (error: Error) => void;
+  body?: any;
+  mergePayload?: boolean;
+};
 
 
 
+const useMutation =  <T>(mutation: MutationRequest, initialParams = {}) => {
 
-const useMutation =  (mutation: MutationRequest) => {
-
-    type T = z.infer<typeof mutation.schema>
+    
     
     const [data, setData] = useState<T | null>(generateInitialState(mutation.schema) as T)
     const [errors, setErrors] = useState<z.infer<typeof mutation.schema> | null>(null)
     const [error, setError] = useState<Error | null>(null)
     const [status, setStatus] = useState<number>(0)
     const [fetchedExistingData, setFetchedExistingData] = useState(false)
+
     
     const [isLoading, setIsLoading] = useState<boolean>(mutation.initialLoading ?? false)
 
 
     const fetchExistingData = async () => {
       if(mutation.existingDataRequest){
-      const response = await axiosClient(mutation.existingDataRequest)
-      console.log(response, "response")
+      const response = await axiosClient(mutation.existingDataRequest, initialParams)
       setData(response.data)
       setStatus(response.status)
       setError(response.error)
@@ -38,34 +43,50 @@ const useMutation =  (mutation: MutationRequest) => {
     }
     }
 
-    
-    const mutate = async (onSuccess: (data: T) => void = () => {}, onError: (error: Error) => void = () => {}) => {
-        const result = mutation.schema.safeParse(data)
-        if (!result.success) {
-            setErrors(result.error.flatten().fieldErrors)
-            return false
-        }else{
-            setErrors(null)
-        }
-        mutation.body = data
-        const response = await axiosMutation(mutation)
+    const mutate = async ({ onSuccess = () => {}, onError = () => {}, body = false, mergePayload = false}: MutateOptions<T>) => {
+      let payload = body ? body : data
+      if(mergePayload){
         
-        if(response.status === (mutation.succesfulStatusCode ?? 200)){
-          
-          onSuccess(response.data)
-        }else{
-          if(response.data){
-            setError(response.data.error)
-            onError(response.data.error)
-          }else{
-            setError(response.error)
-            onError(response.error)
+      
+          payload = {
+            
+            ...(typeof data === 'object' && data !== null ? data : {}),
+            ...payload,
           }
-        }
-        setStatus(response.status)
-        setIsLoading(false)
-        return response
-    }
+        
+      }
+      
+       const result = mutation.schema.safeParse(payload)
+       
+       if (!result.success) {
+           setErrors(result.error.flatten().fieldErrors)
+           return false
+       }else{
+           setErrors(null)
+       }
+       mutation.body = payload
+       
+       const response = await axiosMutation(mutation,payload)
+       
+       if(response.status === (mutation.succesfulStatusCode ?? 200)){
+         onSuccess(response.data)
+       }else{
+         if(response.data){
+          
+           setError(response.data.error)
+           onError(response.data.error)
+         }else{
+          
+           setError(response.error)
+           onError(response.error)
+         }
+       }
+       setStatus(response.status)
+       setIsLoading(false)
+       return response
+   }
+    
+  
 
     const reset = () => {
         setData(null)
@@ -79,6 +100,7 @@ const useMutation =  (mutation: MutationRequest) => {
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
       ) => {
         const fieldSchema = getFieldSchema(mutation.schema, name as string);
+
         
         if (fieldSchema) {
           const parsedValue = parseValueBySchema(e.target.value, fieldSchema);

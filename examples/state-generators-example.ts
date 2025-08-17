@@ -14,9 +14,9 @@ const basicUserSchema = z.object({
   isActive: z.boolean()
 });
 
-console.log('=== Schema Básico ===');
+
 const basicState = generateInitialState(basicUserSchema);
-console.log(basicState);
+
 // Resultado esperado:
 // { name: "", age: 0, email: "", isActive: false }
 
@@ -35,9 +35,9 @@ const advancedUserSchema = z.object({
   })
 });
 
-console.log('\n=== Schema Avanzado ===');
+
 const advancedState = generateInitialState(advancedUserSchema);
-console.log(JSON.stringify(advancedState, null, 2));
+
 
 // 3. Schema con arrays anidados
 const productSchema = z.object({
@@ -61,9 +61,9 @@ const productSchema = z.object({
   })
 });
 
-console.log('\n=== Schema con Arrays Anidados ===');
+
 const productState = generateInitialState(productSchema);
-console.log(JSON.stringify(productState, null, 2));
+
 
 // 4. Schema con tipos complejos
 const formSchema = z.object({
@@ -87,18 +87,18 @@ const formSchema = z.object({
   tags: z.array(z.string()).default([])
 });
 
-console.log('\n=== Schema de Formulario ===');
+
 const formState = generateInitialState(formSchema);
-console.log(JSON.stringify(formState, null, 2));
+
 
 // 5. Uso en React con useState
-console.log('\n=== Ejemplo de uso en React ===');
-console.log('// En un componente React:');
-console.log('const [formData, setFormData] = useState(() => generateInitialState(formSchema));');
-console.log('// Esto inicializa el estado con valores apropiados para cada tipo');
+
+
+
+
 
 // 6. Comparación con la función anterior
-console.log('\n=== Comparación con emptyFromSchema ===');
+
 import { emptyFromSchema } from '../src/utils/helpers';
 
 const comparisonSchema = z.object({
@@ -110,6 +110,6 @@ const comparisonSchema = z.object({
 const state1 = generateInitialState(comparisonSchema);
 const state2 = emptyFromSchema(comparisonSchema);
 
-console.log('generateInitialState:', state1);
-console.log('emptyFromSchema:', state2);
-console.log('¿Son iguales?', JSON.stringify(state1) === JSON.stringify(state2)); 
+
+
+ 

@@ -50,7 +50,7 @@ async function fetchUserBasic(userId: string) {
     return null;
   }
   
-  console.log('Usuario obtenido:', result.data);
+  
   return result.data;
 }
 
@@ -70,7 +70,7 @@ async function fetchProductsWithParams(category: string, limit: number = 10) {
     return [];
   }
   
-  console.log('Productos obtenidos:', result.data);
+  
   return result.data;
 }
 
@@ -105,7 +105,7 @@ async function fetchUserWithAbort(userId: string) {
   
   if (result.error) {
     if (result.error.code === 'ABORT_ERR') {
-      console.log('Petición cancelada por timeout');
+      
     } else {
       console.error('Error al obtener usuario:', result.error.message);
     }
@@ -174,17 +174,17 @@ async function handleApiErrors() {
     if (result.error) {
       switch (result.error.status) {
         case 401:
-          console.log('No autorizado - redirigir a login');
+          
           removeAuthToken();
           break;
         case 404:
-          console.log('Recurso no encontrado');
+          
           break;
         case 500:
-          console.log('Error del servidor');
+          
           break;
         default:
-          console.log('Error desconocido:', result.error.message);
+          
       }
     }
   } catch (error) {

@@ -9,14 +9,13 @@ Este módulo proporciona utilidades para implementar funcionalidad de debounce e
 Función simple de debounce que devuelve una función debounced. **Sin dependencias de React**.
 
 ```typescript
-import { debounce } from '@your-sdk/core';
+import { debounce } from "@your-sdk/core";
 
 const handleSearch = (searchTerm: string) => {
-  
   // API call would go here
 };
 
-const debouncedSearch = debounce(() => handleSearch('test'), 300);
+const debouncedSearch = debounce(() => handleSearch("test"), 300);
 
 // Usage
 debouncedSearch(); // Triggers after 300ms
@@ -28,7 +27,7 @@ debouncedSearch(); // Resets timer and waits another 300ms
 Utilidad simple para crear una versión debounced de cualquier función.
 
 ```typescript
-import { debounceFunction } from '@your-sdk/core';
+import { debounceFunction } from "@your-sdk/core";
 
 const searchUsers = async (query: string) => {
   const response = await fetch(`/api/users?q=${query}`);
@@ -38,7 +37,7 @@ const searchUsers = async (query: string) => {
 const debouncedSearch = debounceFunction(searchUsers, 300);
 
 // Usage
-debouncedSearch('john'); // Will execute after 300ms delay
+debouncedSearch("john"); // Will execute after 300ms delay
 ```
 
 ### `Debouncer` Class
@@ -46,16 +45,14 @@ debouncedSearch('john'); // Will execute after 300ms delay
 Clase para crear instancias de debouncer reutilizables. Útil cuando necesitas múltiples debouncers o quieres cancelar llamadas pendientes.
 
 ```typescript
-import { Debouncer } from '@your-sdk/core';
+import { Debouncer } from "@your-sdk/core";
 
 const debouncer = new Debouncer();
 
-const handleInputChange = (value: string) => {
-  
-};
+const handleInputChange = (value: string) => {};
 
 // Debounce la función
-debouncer.debounce(() => handleInputChange('test'), 500);
+debouncer.debounce(() => handleInputChange("test"), 500);
 
 // Cancelar llamadas pendientes
 debouncer.cancel();
@@ -66,16 +63,14 @@ debouncer.cancel();
 Utilidad para crear una versión debounced de cualquier función existente.
 
 ```typescript
-import { createDebouncedFunction } from '@your-sdk/core';
+import { createDebouncedFunction } from "@your-sdk/core";
 
-const saveToDatabase = (data: { id: string; content: string }) => {
-  
-};
+const saveToDatabase = (data: { id: string; content: string }) => {};
 
 const debouncedSave = createDebouncedFunction(saveToDatabase, 1000);
 
 // Usar la función debounced
-debouncedSave({ id: '1', content: 'Hello World' });
+debouncedSave({ id: "1", content: "Hello World" });
 ```
 
 ## Casos de Uso Comunes
@@ -83,7 +78,7 @@ debouncedSave({ id: '1', content: 'Hello World' });
 ### 1. Búsqueda en Tiempo Real
 
 ```typescript
-import { debounceFunction } from '@your-sdk/core';
+import { debounceFunction } from "@your-sdk/core";
 
 const searchUsers = async (query: string) => {
   const response = await fetch(`/api/users?q=${query}`);
@@ -93,7 +88,7 @@ const searchUsers = async (query: string) => {
 const debouncedSearch = debounceFunction(searchUsers, 300);
 
 // En un input de búsqueda
-input.addEventListener('input', (e) => {
+input.addEventListener("input", (e) => {
   debouncedSearch(e.target.value);
 });
 ```
@@ -101,7 +96,7 @@ input.addEventListener('input', (e) => {
 ### 2. Validación de Formularios
 
 ```typescript
-import { debounceFunction } from '@your-sdk/core';
+import { debounceFunction } from "@your-sdk/core";
 
 const validateEmail = (email: string) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -117,14 +112,13 @@ const debouncedValidateEmail = debounceFunction((email: string) => {
 ### 3. Guardado Automático
 
 ```typescript
-import { Debouncer } from '@your-sdk/core';
+import { Debouncer } from "@your-sdk/core";
 
 const debouncer = new Debouncer();
 
 const autoSave = (content: string) => {
   debouncer.debounce(() => {
-    localStorage.setItem('draft', content);
-    
+    localStorage.setItem("draft", content);
   }, 2000);
 };
 ```
@@ -132,21 +126,19 @@ const autoSave = (content: string) => {
 ### 4. Eventos del Navegador
 
 ```typescript
-import { debounceFunction } from '@your-sdk/core';
+import { debounceFunction } from "@your-sdk/core";
 
-const handleResize = () => {
-  
-};
+const handleResize = () => {};
 
 const debouncedResizeHandler = debounceFunction(handleResize, 250);
 
-window.addEventListener('resize', debouncedResizeHandler);
+window.addEventListener("resize", debouncedResizeHandler);
 ```
 
 ### 5. Llamadas a API
 
 ```typescript
-import { createDebouncedFunction } from '@your-sdk/core';
+import { createDebouncedFunction } from "@your-sdk/core";
 
 const fetchUserData = async (userId: string) => {
   const response = await fetch(`/api/users/${userId}`);
@@ -156,17 +148,17 @@ const fetchUserData = async (userId: string) => {
 const debouncedFetchUser = createDebouncedFunction(fetchUserData, 300);
 
 // Evita múltiples llamadas cuando el usuario cambia rápidamente de usuario
-debouncedFetchUser('user123');
+debouncedFetchUser("user123");
 ```
 
 ## Comparación de Funciones
 
-| Función | Uso | Ventajas |
-|---------|-----|----------|
-| `debounce()` | Función simple | Fácil de usar, devuelve función |
-| `debounceFunction()` | Cualquier función | Más directo, preserva argumentos |
-| `Debouncer` class | Múltiples debouncers | Control total, cancelación |
-| `createDebouncedFunction()` | Funciones complejas | Flexibilidad máxima |
+| Función                     | Uso                  | Ventajas                         |
+| --------------------------- | -------------------- | -------------------------------- |
+| `debounce()`                | Función simple       | Fácil de usar, devuelve función  |
+| `debounceFunction()`        | Cualquier función    | Más directo, preserva argumentos |
+| `Debouncer` class           | Múltiples debouncers | Control total, cancelación       |
+| `createDebouncedFunction()` | Funciones complejas  | Flexibilidad máxima              |
 
 ## Consideraciones de Rendimiento
 
@@ -177,6 +169,7 @@ debouncedFetchUser('user123');
 ## Compatibilidad
 
 Las funciones son compatibles con:
+
 - **Navegadores modernos**
 - **Node.js**
 - **TypeScript**
@@ -186,23 +179,23 @@ Las funciones son compatibles con:
 
 ```typescript
 // Función debounce simple
-function debounce(callback: () => void, delay: number): void
+function debounce(callback: () => void, delay: number): void;
 
 // Función debounce utilitaria
 function debounceFunction<T extends (...args: any[]) => any>(
   func: T,
-  delay: number
-): (...args: Parameters<T>) => void
+  delay: number,
+): (...args: Parameters<T>) => void;
 
 // Clase Debouncer
 class Debouncer {
-  debounce(callback: () => void, delay: number): void
-  cancel(): void
+  debounce(callback: () => void, delay: number): void;
+  cancel(): void;
 }
 
 // Función utilitaria avanzada
 function createDebouncedFunction<T extends (...args: any[]) => any>(
   func: T,
-  delay: number
-): (...args: Parameters<T>) => void
-``` 
+  delay: number,
+): (...args: Parameters<T>) => void;
+```

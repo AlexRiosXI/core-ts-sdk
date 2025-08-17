@@ -8,7 +8,7 @@ let debounceTimer: NodeJS.Timeout | undefined;
  */
 export const debounce = <T extends (...args: any[]) => any>(
   callback: T,
-  delay: number
+  delay: number,
 ): ((...args: Parameters<T>) => void) => {
   return (...args: Parameters<T>) => {
     clearTimeout(debounceTimer);

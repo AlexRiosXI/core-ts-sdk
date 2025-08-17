@@ -1,13 +1,17 @@
-import { debounce, Debouncer, createDebouncedFunction, debounceFunction } from '../src/tools/debouncer';
+import {
+  debounce,
+  Debouncer,
+  createDebouncedFunction,
+  debounceFunction,
+} from "../src/tools/debouncer";
 
 // Example 1: Using the pure JavaScript debounce function
 export const pureDebounceExample = () => {
   const handleSearch = (searchTerm: string) => {
-    
     // API call would go here
   };
 
-  const debouncedSearch = debounce(() => handleSearch('test'), 300);
+  const debouncedSearch = debounce(() => handleSearch("test"), 300);
 
   // Usage
   debouncedSearch(); // This will trigger the search after 300ms
@@ -19,9 +23,8 @@ export const pureDebounceExample = () => {
 // Example 2: Using the Debouncer class
 export const debouncerExample = () => {
   const debouncer = new Debouncer();
-  
+
   const handleInputChange = (value: string) => {
-    
     // Process input changes
   };
 
@@ -41,7 +44,6 @@ export const debouncerExample = () => {
 export const createDebouncedFunctionExample = () => {
   // Original function
   const saveToDatabase = (data: { id: string; content: string }) => {
-    
     // Database save operation
   };
 
@@ -59,7 +61,6 @@ export const createDebouncedFunctionExample = () => {
 // Example 4: Using debounceFunction (simplest approach)
 export const debounceFunctionExample = () => {
   const searchUsers = async (query: string) => {
-    
     // const response = await fetch(`/api/users?q=${query}`);
     // return response.json();
   };
@@ -78,14 +79,13 @@ export const debounceFunctionExample = () => {
 // Example 5: API request debouncing
 export const apiDebouncingExample = () => {
   const debouncer = new Debouncer();
-  
+
   const fetchUserData = async (userId: string) => {
     try {
-      
       // const response = await api.get(`/users/${userId}`);
       // return response.data;
     } catch (error) {
-      console.error('Error fetching user data:', error);
+      console.error("Error fetching user data:", error);
     }
   };
 
@@ -105,7 +105,7 @@ export const formValidationExample = () => {
 
   const debouncedValidateEmail = debounceFunction((email: string) => {
     const isValid = validateEmail(email);
-    
+
     // Update UI based on validation result
   }, 500);
 
@@ -114,19 +114,17 @@ export const formValidationExample = () => {
 
 // Example 7: Browser event handling
 export const browserEventExample = () => {
-  const handleResize = () => {
-    
-  };
+  const handleResize = () => {};
 
   const debouncedResizeHandler = debounceFunction(handleResize, 250);
 
   // Add event listener
-  window.addEventListener('resize', debouncedResizeHandler);
+  window.addEventListener("resize", debouncedResizeHandler);
 
   // Remove event listener (when component unmounts)
   const cleanup = () => {
-    window.removeEventListener('resize', debouncedResizeHandler);
+    window.removeEventListener("resize", debouncedResizeHandler);
   };
 
   return { cleanup };
-}; 
+};

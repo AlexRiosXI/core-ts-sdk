@@ -10,7 +10,7 @@ const localStorageMock = {
   clear: jest.fn(),
 };
 
-Object.defineProperty(window, 'localStorage', {
+Object.defineProperty(window, "localStorage", {
   value: localStorageMock,
 });
 
@@ -35,4 +35,4 @@ beforeAll(() => {
 afterAll(() => {
   console.warn = originalConsole.warn;
   console.error = originalConsole.error;
-}); 
+});

@@ -1,11 +1,24 @@
-import { z, ZodTypeAny, ZodObject, ZodString, ZodNumber, ZodBoolean, ZodArray, ZodOptional, ZodNullable, ZodDefault } from "zod";
+import {
+  z,
+  ZodTypeAny,
+  ZodObject,
+  ZodString,
+  ZodNumber,
+  ZodBoolean,
+  ZodArray,
+  ZodOptional,
+  ZodNullable,
+  ZodDefault,
+} from "zod";
 
 /**
  * Genera un estado inicial basado en un schema de Zod
  * @param schema - El schema de Zod para generar el estado inicial
  * @returns Un objeto con los valores iniciales correspondientes al schema
  */
-export function generateInitialState<T extends ZodTypeAny>(schema: T): z.infer<T> {
+export function generateInitialState<T extends ZodTypeAny>(
+  schema: T,
+): z.infer<T> {
   return getInitialValue(schema) as z.infer<T>;
 }
 
@@ -20,7 +33,6 @@ function getInitialValue(schema: ZodTypeAny): any {
     return getInitialValue(schema.unwrap() as ZodTypeAny);
   }
 
-  
   // Maneja tipos con valores por defecto
   if (schema instanceof ZodDefault) {
     try {
@@ -60,7 +72,9 @@ function getInitialValue(schema: ZodTypeAny): any {
  * @param schema - El schema del objeto Zod
  * @returns Un objeto con los valores iniciales para cada campo
  */
-function getInitialValuesFromSchema(schema: ZodObject<any>): Record<string, any> {
+function getInitialValuesFromSchema(
+  schema: ZodObject<any>,
+): Record<string, any> {
   const shape = schema.shape;
   const result: Record<string, any> = {};
 
@@ -96,7 +110,7 @@ const userSchema = z.object({
 
 // Generar estado inicial
 const initialState = generateInitialState(userSchema);
-console.log(initialState);
+
 // Resultado esperado:
 // {
 //   name: "",

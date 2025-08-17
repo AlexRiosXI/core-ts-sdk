@@ -16,13 +16,13 @@ The `useMutation` hook is used to handle mutation operations (POST, PUT, DELETE,
 
 ```typescript
 interface MutationRequest {
-  url: string
-  method: 'POST' | 'PUT' | 'DELETE' | 'PATCH'
-  schema: z.ZodSchema
-  body?: any
-  succesfulStatusCode?: number
-  initialLoading?: boolean
-  existingDataRequest?: Request // Optional for loading existing data, useful for edit forms
+  url: string;
+  method: "POST" | "PUT" | "DELETE" | "PATCH";
+  schema: z.ZodSchema;
+  body?: any;
+  succesfulStatusCode?: number;
+  initialLoading?: boolean;
+  existingDataRequest?: Request; // Optional for loading existing data, useful for edit forms
 }
 ```
 
@@ -46,13 +46,13 @@ const mutation = {
 }
 
 const MyComponent = () => {
-  const { 
-    data, 
-    mutate, 
-    register, 
-    isLoading, 
-    errors, 
-    partialValidation 
+  const {
+    data,
+    mutate,
+    register,
+    isLoading,
+    errors,
+    partialValidation
   } = useMutation(mutation)
 
   const handleSubmit = async () => {
@@ -60,7 +60,7 @@ const MyComponent = () => {
       (data) => console.log('User created:', data),
       (error) => console.error('Error:', error)
     )
-    
+
     if (success) {
       // Navigate or show success message
     }
@@ -71,7 +71,7 @@ const MyComponent = () => {
       <input {...register('name')} placeholder="Name" />
       <input {...register('email')} placeholder="Email" />
       <input {...register('age')} type="number" placeholder="Age" />
-      
+
       <button type="submit" disabled={isLoading}>
         {isLoading ? 'Creating...' : 'Create User'}
       </button>
@@ -96,12 +96,12 @@ const editUserMutation = {
 }
 
 const EditUserComponent = () => {
-  const { 
-    data, 
-    mutate, 
-    register, 
-    isLoading, 
-    errors 
+  const {
+    data,
+    mutate,
+    register,
+    isLoading,
+    errors
   } = useMutation(editUserMutation)
 
   // Existing data is loaded automatically
@@ -143,8 +143,8 @@ const handleBlur = (fieldName: string) => {
   partialValidation([fieldName])
 }
 
-<input 
-  {...register('email')} 
+<input
+  {...register('email')}
   onBlur={() => handleBlur('email')}
 />
 ```
@@ -165,9 +165,9 @@ The `useRequest` hook is used to perform simple GET requests with automatic stat
 
 ```typescript
 interface Request {
-  url: string
-  method: 'GET'
-  autoQuery?: boolean // Default: false
+  url: string;
+  method: "GET";
+  autoQuery?: boolean; // Default: false
 }
 ```
 
@@ -177,12 +177,12 @@ interface Request {
 import { useRequest } from '@sierra-madre/core'
 
 const MyComponent = () => {
-  const { 
-    data, 
-    query, 
-    isLoading, 
-    error, 
-    status 
+  const {
+    data,
+    query,
+    isLoading,
+    error,
+    status
   } = useRequest({
     url: '/api/users',
     method: 'GET',
@@ -206,11 +206,11 @@ const MyComponent = () => {
 
 ```typescript
 const UserList = () => {
-  const { 
-    data, 
-    query, 
-    isLoading, 
-    error 
+  const {
+    data,
+    query,
+    isLoading,
+    error
   } = useRequest({
     url: '/api/users',
     method: 'GET',
@@ -226,7 +226,7 @@ const UserList = () => {
       <button onClick={handleRefresh} disabled={isLoading}>
         {isLoading ? 'Loading...' : 'Refresh'}
       </button>
-      
+
       {data?.map(user => (
         <div key={user.id}>{user.name}</div>
       ))}
@@ -255,10 +255,10 @@ const UserList = () => {
 
 ```typescript
 const { data, isLoading } = useRequest({
-  url: '/api/dashboard/stats',
-  method: 'GET',
-  autoQuery: true
-})
+  url: "/api/dashboard/stats",
+  method: "GET",
+  autoQuery: true,
+});
 ```
 
 #### 2. Search with Parameters
@@ -266,7 +266,7 @@ const { data, isLoading } = useRequest({
 ```typescript
 const SearchComponent = () => {
   const [searchTerm, setSearchTerm] = useState('')
-  
+
   const { data, query } = useRequest({
     url: `/api/search?q=${searchTerm}`,
     method: 'GET',
@@ -279,8 +279,8 @@ const SearchComponent = () => {
 
   return (
     <div>
-      <input 
-        value={searchTerm} 
+      <input
+        value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
       <button onClick={handleSearch}>Search</button>
@@ -294,7 +294,7 @@ const SearchComponent = () => {
 ```typescript
 const UserList = () => {
   const [page, setPage] = useState(1)
-  
+
   const { data, query } = useRequest({
     url: `/api/users?page=${page}`,
     method: 'GET',
@@ -310,7 +310,7 @@ const UserList = () => {
       {data?.users.map(user => (
         <div key={user.id}>{user.name}</div>
       ))}
-      
+
       <button onClick={() => setPage(p => p + 1)}>
         Next page
       </button>

@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { 
-  useRequest, 
-  useRequestWithRetry, 
-  useRequestOptimistic 
-} from '../src/hooks/useRequest';
+import React, { useState } from "react";
+import {
+  useRequest,
+  useRequestWithRetry,
+  useRequestOptimistic,
+} from "../src/hooks/useRequest";
 
 // Types for the example
 interface User {
@@ -31,7 +31,7 @@ export function UserProfileComponent({ userId }: { userId: string }) {
       config: {
         timeout: 5000,
       },
-    }
+    },
   );
 
   if (isLoading) {
@@ -73,15 +73,15 @@ export function UserProfileComponent({ userId }: { userId: string }) {
  */
 export function ProductListComponent({ category }: { category: string }) {
   const { data, error, isLoading, status } = useRequest<Product[]>(
-    '/api/products',
+    "/api/products",
     {
-      params: { 
-        category, 
+      params: {
+        category,
         limit: 20,
-        sort: 'price_asc'
+        sort: "price_asc",
       },
       dependencies: [category], // Re-execute when category changes
-    }
+    },
   );
 
   if (isLoading) {
@@ -100,7 +100,7 @@ export function ProductListComponent({ category }: { category: string }) {
   return (
     <div>
       <h2>Products in {category}</h2>
-      {data?.map(product => (
+      {data?.map((product) => (
         <div key={product.id}>
           <h3>{product.name}</h3>
           <p>Price: ${product.price}</p>
@@ -116,29 +116,18 @@ export function ProductListComponent({ category }: { category: string }) {
  * Shows automatic retry functionality
  */
 export function ReliableDataComponent({ userId }: { userId: string }) {
-  const { 
-    data, 
-    error, 
-    isLoading, 
-    status, 
-    retryAttempt,
-    refetch 
-  } = useRequestWithRetry<User>(
-    `/api/users/${userId}`,
-    {
+  const { data, error, isLoading, status, retryAttempt, refetch } =
+    useRequestWithRetry<User>(`/api/users/${userId}`, {
       retryCount: 3,
       retryDelay: 1000,
       retryCondition: (err) => err.status >= 500, // Only retry server errors
-    }
-  );
+    });
 
   if (isLoading) {
     return (
       <div>
         <p>Loading user data...</p>
-        {retryAttempt > 0 && (
-          <p>Retry attempt: {retryAttempt}</p>
-        )}
+        {retryAttempt > 0 && <p>Retry attempt: {retryAttempt}</p>}
       </div>
     );
   }
@@ -167,20 +156,17 @@ export function ReliableDataComponent({ userId }: { userId: string }) {
  * Shows optimistic updates for better UX
  */
 export function OptimisticUserComponent({ userId }: { userId: string }) {
-  const [optimisticName, setOptimisticName] = useState<string>('');
+  const [optimisticName, setOptimisticName] = useState<string>("");
 
-  const { 
-    data, 
-    error, 
-    isLoading, 
-    status,
-    setOptimistic 
-  } = useRequestOptimistic<User>(
-    `/api/users/${userId}`,
-    {
-      optimisticData: { id: userId, name: optimisticName, email: '', role: '' } as User,
-    }
-  );
+  const { data, error, isLoading, status, setOptimistic } =
+    useRequestOptimistic<User>(`/api/users/${userId}`, {
+      optimisticData: {
+        id: userId,
+        name: optimisticName,
+        email: "",
+        role: "",
+      } as User,
+    });
 
   const handleNameChange = (newName: string) => {
     setOptimisticName(newName);
@@ -201,7 +187,7 @@ export function OptimisticUserComponent({ userId }: { userId: string }) {
       <h1>{data?.name}</h1>
       <input
         type="text"
-        value={data?.name || ''}
+        value={data?.name || ""}
         onChange={(e) => handleNameChange(e.target.value)}
         placeholder="Update name..."
       />
@@ -214,13 +200,19 @@ export function OptimisticUserComponent({ userId }: { userId: string }) {
  * Conditional request example
  * Shows how to enable/disable requests based on conditions
  */
-export function ConditionalRequestComponent({ userId, shouldFetch }: { userId: string; shouldFetch: boolean }) {
+export function ConditionalRequestComponent({
+  userId,
+  shouldFetch,
+}: {
+  userId: string;
+  shouldFetch: boolean;
+}) {
   const { data, error, isLoading, status } = useRequest<User>(
     shouldFetch ? `/api/users/${userId}` : null,
     {
       enabled: shouldFetch,
       dependencies: [shouldFetch],
-    }
+    },
   );
 
   if (!shouldFetch) {
@@ -255,16 +247,19 @@ export function ConditionalRequestComponent({ userId, shouldFetch }: { userId: s
 export function DashboardComponent({ userId }: { userId: string }) {
   // User data request
   const userRequest = useRequest<User>(`/api/users/${userId}`);
-  
+
   // User orders request
   const ordersRequest = useRequest<any[]>(`/api/users/${userId}/orders`, {
     enabled: !!userRequest.data, // Only fetch orders if user data is available
   });
 
   // User preferences request
-  const preferencesRequest = useRequest<any>(`/api/users/${userId}/preferences`, {
-    enabled: !!userRequest.data,
-  });
+  const preferencesRequest = useRequest<any>(
+    `/api/users/${userId}/preferences`,
+    {
+      enabled: !!userRequest.data,
+    },
+  );
 
   if (userRequest.isLoading) {
     return <div>Loading user data...</div>;
@@ -282,7 +277,7 @@ export function DashboardComponent({ userId }: { userId: string }) {
   return (
     <div>
       <h1>Dashboard</h1>
-      
+
       {/* User Info */}
       <section>
         <h2>User Information</h2>
@@ -295,10 +290,12 @@ export function DashboardComponent({ userId }: { userId: string }) {
       <section>
         <h2>Orders</h2>
         {ordersRequest.isLoading && <p>Loading orders...</p>}
-        {ordersRequest.error && <p>Error loading orders: {ordersRequest.error}</p>}
+        {ordersRequest.error && (
+          <p>Error loading orders: {ordersRequest.error}</p>
+        )}
         {ordersRequest.data && (
           <div>
-            {ordersRequest.data.map(order => (
+            {ordersRequest.data.map((order) => (
               <div key={order.id}>
                 <p>Order #{order.id}</p>
                 <p>Total: ${order.total}</p>
@@ -312,7 +309,9 @@ export function DashboardComponent({ userId }: { userId: string }) {
       <section>
         <h2>Preferences</h2>
         {preferencesRequest.isLoading && <p>Loading preferences...</p>}
-        {preferencesRequest.error && <p>Error loading preferences: {preferencesRequest.error}</p>}
+        {preferencesRequest.error && (
+          <p>Error loading preferences: {preferencesRequest.error}</p>
+        )}
         {preferencesRequest.data && (
           <div>
             <p>Theme: {preferencesRequest.data.theme}</p>
@@ -322,4 +321,4 @@ export function DashboardComponent({ userId }: { userId: string }) {
       </section>
     </div>
   );
-} 
+}

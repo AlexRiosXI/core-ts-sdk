@@ -24,11 +24,11 @@ npm install @sierra-madre/core-ts-sdk
 ### Inicialización básica
 
 ```typescript
-import { initializeSierraMadreSDK } from '@sierra-madre/core-ts-sdk';
+import { initializeSierraMadreSDK } from "@sierra-madre/core-ts-sdk";
 
 // Inicializar con configuración por defecto
 const apiClient = initializeSierraMadreSDK({
-  baseURL: 'https://api.sierramadre.com',
+  baseURL: "https://api.sierramadre.com",
   timeout: 10000,
 });
 ```
@@ -36,10 +36,13 @@ const apiClient = initializeSierraMadreSDK({
 ### Inicialización manual
 
 ```typescript
-import { initializeApiClient, createAuthMiddleware } from '@sierra-madre/core-ts-sdk';
+import {
+  initializeApiClient,
+  createAuthMiddleware,
+} from "@sierra-madre/core-ts-sdk";
 
 const apiClient = initializeApiClient({
-  baseURL: 'https://api.sierramadre.com',
+  baseURL: "https://api.sierramadre.com",
   timeout: 10000,
   withCredentials: true,
 });
@@ -67,57 +70,56 @@ request<T>(url: string, options?: {
 ### Peticiones GET simples
 
 ```typescript
-import { request } from '@sierra-madre/core-ts-sdk';
+import { request } from "@sierra-madre/core-ts-sdk";
 
 // Petición básica
-const result = await request<User>('/api/users/1');
+const result = await request<User>("/api/users/1");
 
 if (result.error) {
-  console.error('Error:', result.error.message);
+  console.error("Error:", result.error.message);
 } else {
-  console.log('Usuario:', result.data);
 }
 ```
 
 ### Peticiones con parámetros de consulta
 
 ```typescript
-import { request } from '@sierra-madre/core-ts-sdk';
+import { request } from "@sierra-madre/core-ts-sdk";
 
 // Petición con parámetros de consulta
-const result = await request<Product[]>('/api/products', {
-  params: { 
-    category: 'electronics',
+const result = await request<Product[]>("/api/products", {
+  params: {
+    category: "electronics",
     limit: 10,
-    page: 1 
-  }
+    page: 1,
+  },
 });
 ```
 
 ### Peticiones con timeout
 
 ```typescript
-import { request } from '@sierra-madre/core-ts-sdk';
+import { request } from "@sierra-madre/core-ts-sdk";
 
 // Petición con timeout personalizado
-const result = await request<Order>('/api/orders/123', {
+const result = await request<Order>("/api/orders/123", {
   config: {
-    timeout: 5000 // 5 segundos
-  }
+    timeout: 5000, // 5 segundos
+  },
 });
 ```
 
 ### Peticiones con cancelación
 
 ```typescript
-import { request } from '@sierra-madre/core-ts-sdk';
+import { request } from "@sierra-madre/core-ts-sdk";
 
 // Petición con AbortController para cancelación
 const controller = new AbortController();
-const result = await request<User>('/api/users/1', {
+const result = await request<User>("/api/users/1", {
   config: {
-    signal: controller.signal
-  }
+    signal: controller.signal,
+  },
 });
 
 // Para cancelar la petición
@@ -127,20 +129,20 @@ controller.abort();
 ### Peticiones con parámetros y configuración combinada
 
 ```typescript
-import { request } from '@sierra-madre/core-ts-sdk';
+import { request } from "@sierra-madre/core-ts-sdk";
 
 // Petición con parámetros y timeout
-const result = await request<Product[]>('/api/products', {
-  params: { 
-    category: 'electronics',
-    limit: 10 
+const result = await request<Product[]>("/api/products", {
+  params: {
+    category: "electronics",
+    limit: 10,
   },
   config: {
     timeout: 8000,
     headers: {
-      'X-Custom-Header': 'value'
-    }
-  }
+      "X-Custom-Header": "value",
+    },
+  },
 });
 ```
 
@@ -303,10 +305,10 @@ function ProductStats({ category }: { category: string }) {
 El SDK incluye middleware de autenticación que automáticamente añade el token JWT desde `localStorage`:
 
 ```typescript
-import { setAuthToken, removeAuthToken } from '@sierra-madre/core-ts-sdk';
+import { setAuthToken, removeAuthToken } from "@sierra-madre/core-ts-sdk";
 
 // Guardar token después del login
-setAuthToken('tu-jwt-token');
+setAuthToken("tu-jwt-token");
 
 // Eliminar token en logout
 removeAuthToken();
@@ -315,11 +317,11 @@ removeAuthToken();
 ### Middleware personalizado
 
 ```typescript
-import { createConditionalAuthMiddleware } from '@sierra-madre/core-ts-sdk';
+import { createConditionalAuthMiddleware } from "@sierra-madre/core-ts-sdk";
 
 // Middleware que solo añade token para ciertas URLs
 const conditionalAuth = createConditionalAuthMiddleware((url) => {
-  return url.startsWith('/api/protected');
+  return url.startsWith("/api/protected");
 });
 
 apiClient.addMiddleware(conditionalAuth);
@@ -330,31 +332,31 @@ apiClient.addMiddleware(conditionalAuth);
 ### Tipos básicos
 
 ```typescript
-import type { 
-  ApiResult, 
-  ApiResponse, 
+import type {
+  ApiResult,
+  ApiResponse,
   ApiError,
-  User, 
-  Product, 
-  Order 
-} from '@sierra-madre/core-ts-sdk';
+  User,
+  Product,
+  Order,
+} from "@sierra-madre/core-ts-sdk";
 
 // Uso con tipos
-const result: ApiResult<User> = await request<User>('/api/users/1');
+const result: ApiResult<User> = await request<User>("/api/users/1");
 ```
 
 ### Contratos compartidos
 
 ```typescript
 // Los tipos están diseñados para trabajar con @sierra-madre/contracts
-import type { Product, Order } from '@sierra-madre/core-ts-sdk';
+import type { Product, Order } from "@sierra-madre/core-ts-sdk";
 
 interface ProductWithInventory extends Product {
   stock: number;
   warehouse: string;
 }
 
-const result = await request<ProductWithInventory>('/api/products/123');
+const result = await request<ProductWithInventory>("/api/products/123");
 ```
 
 ## 🧪 Testing
@@ -369,17 +371,17 @@ npm run test:watch
 ### Ejemplo de test
 
 ```typescript
-import { request, initializeApiClient } from '@sierra-madre/core-ts-sdk';
+import { request, initializeApiClient } from "@sierra-madre/core-ts-sdk";
 
-describe('API Client', () => {
+describe("API Client", () => {
   beforeEach(() => {
     initializeApiClient({
-      baseURL: 'https://api.test.com'
+      baseURL: "https://api.test.com",
     });
   });
 
-  it('should make successful requests', async () => {
-    const result = await request('/test');
+  it("should make successful requests", async () => {
+    const result = await request("/test");
     expect(result.data).toBeDefined();
     expect(result.error).toBeNull();
   });
@@ -422,24 +424,32 @@ tests/
 ### Función request unificada
 
 **Antes (múltiples funciones):**
+
 ```typescript
 // Diferentes funciones para diferentes casos
-const result1 = await request<User>('/api/users/1');
-const result2 = await requestWithParams<Product[]>('/api/products', { category: 'electronics' });
-const result3 = await requestWithTimeout<Order>('/api/orders/123', 5000);
+const result1 = await request<User>("/api/users/1");
+const result2 = await requestWithParams<Product[]>("/api/products", {
+  category: "electronics",
+});
+const result3 = await requestWithTimeout<Order>("/api/orders/123", 5000);
 ```
 
 **Ahora (una sola función configurable):**
+
 ```typescript
 // Una sola función para todos los casos
-const result1 = await request<User>('/api/users/1');
-const result2 = await request<Product[]>('/api/products', { params: { category: 'electronics' } });
-const result3 = await request<Order>('/api/orders/123', { config: { timeout: 5000 } });
+const result1 = await request<User>("/api/users/1");
+const result2 = await request<Product[]>("/api/products", {
+  params: { category: "electronics" },
+});
+const result3 = await request<Order>("/api/orders/123", {
+  config: { timeout: 5000 },
+});
 
 // Combinando parámetros y configuración
-const result4 = await request<Product[]>('/api/products', {
-  params: { category: 'electronics', limit: 10 },
-  config: { timeout: 8000, headers: { 'X-Custom': 'value' } }
+const result4 = await request<Product[]>("/api/products", {
+  params: { category: "electronics", limit: 10 },
+  config: { timeout: 8000, headers: { "X-Custom": "value" } },
 });
 ```
 
@@ -457,4 +467,4 @@ MIT License - ver [LICENSE](LICENSE) para más detalles.
 
 ## 🆘 Soporte
 
-Para soporte técnico, contacta al equipo de Sierra Madre o abre un issue en el repositorio. 
+Para soporte técnico, contacta al equipo de Sierra Madre o abre un issue en el repositorio.

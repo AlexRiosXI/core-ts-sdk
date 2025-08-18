@@ -1,5 +1,5 @@
 {
-  "name": "@sierra-madre/core-ts-sdk",
+  "name": "@alexriosxi/core-ts-sdk",
   "version": "1.0.0",
   "description": "SDK TypeScript desacoplado para Sierra Madre - Funciones básicas de llamado a APIs",
   "main": "dist/index.js",
